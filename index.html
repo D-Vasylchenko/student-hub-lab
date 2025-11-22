@@ -2,27 +2,59 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>WeatherWear 2.0</title>
+    <title>WeatherWear Pro</title>
     <style>
-        body { font-family: sans-serif; text-align: center; padding-top: 50px; }
-        #weather-result { margin-top: 20px; display: none; }
-        #forecast { margin-top: 15px; font-size: 0.9em; color: #555; }
-        .alert { color: #d9534f; font-weight: bold; } /* Червоний колір для попереджень */
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; padding-top: 50px; background-color: #f4f7f6; }
+
+        .search-container { position: relative; width: 300px; margin: 0 auto; }
+
+        input { width: 100%; padding: 10px; box-sizing: border-box; font-size: 16px; }
+
+        .suggestions-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            position: absolute;
+            width: 100%;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            z-index: 10;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .suggestions-list li {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+
+        .suggestions-list li:hover { background-color: #f0f0f0; }
+        .suggestions-list li span { font-size: 0.85em; color: #666; display: block;}
+
+        #weather-result { margin-top: 20px; display: none; background: white; padding: 20px; border-radius: 10px; width: 300px; margin-left: auto; margin-right: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .alert { color: #d9534f; font-weight: bold; display: block; margin-top: 5px;}
     </style>
 </head>
 <body>
-<h1>🌤 Розумний Погодний Асистент</h1>
-<input type="text" id="city-input" placeholder="Введіть місто (напр. Kyiv)">
-<button onclick="getWeather()">Аналіз</button>
+<h1>🌤 Погодний Асистент</h1>
+
+<div class="search-container">
+    <input type="text" id="city-input" placeholder="Почніть вводити місто..." autocomplete="off">
+    <ul id="suggestions" class="suggestions-list"></ul>
+</div>
 
 <div id="weather-result">
     <h2 id="city-name"></h2>
-    <p>Зараз: <span id="temp"></span>°C, <span id="description"></span></p>
+    <p>Зараз: <strong id="temp"></strong>°C, <span id="description"></span></p>
 
-    <div id="forecast"></div>
+    <div id="forecast" style="text-align: left; margin-top: 15px; font-size: 0.9em; color: #555;"></div>
 
     <hr>
-    <p id="clothing-advice" style="font-size: 1.2em; font-weight: bold; color: blue;"></p>
+    <p id="clothing-advice" style="font-size: 1.1em; color: #0056b3;"></p>
 </div>
 
 <script src="script.js"></script>
