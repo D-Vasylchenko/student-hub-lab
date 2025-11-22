@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>WeatherWear 2.0</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding-top: 50px; }
+        #weather-result { margin-top: 20px; display: none; }
+        #forecast { margin-top: 15px; font-size: 0.9em; color: #555; }
+        .alert { color: #d9534f; font-weight: bold; } /* Червоний колір для попереджень */
+    </style>
+</head>
+<body>
+<h1>🌤 Розумний Погодний Асистент</h1>
+<input type="text" id="city-input" placeholder="Введіть місто (напр. Kyiv)">
+<button onclick="getWeather()">Аналіз</button>
+
+<div id="weather-result">
+    <h2 id="city-name"></h2>
+    <p>Зараз: <span id="temp"></span>°C, <span id="description"></span></p>
+
+    <div id="forecast"></div>
+
+    <hr>
+    <p id="clothing-advice" style="font-size: 1.2em; font-weight: bold; color: blue;"></p>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
