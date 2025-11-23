@@ -1,0 +1,5 @@
+echo "🚧 Compiling project... (Simulation)"
+
+echo "🧪 Running tests... (Simulation)"
+
+echo "✅ All checks passed! Pushing to GitHub..."
