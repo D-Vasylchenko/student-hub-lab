@@ -5,82 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background: #f0f2f5; height: 100vh; overflow: hidden; display: flex; }
 
-        #auth-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .auth-box { background: white; padding: 2rem; border-radius: 20px; width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        input { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; }
-        button { width: 100%; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 5px; }
-        .btn-primary { background: #764ba2; color: white; }
-        .btn-secondary { background: transparent; color: #764ba2; border: 1px solid #764ba2; }
-        #app-container { display: none; width: 100%; height: 100%; display: flex; }
-        .sidebar { width: 300px; background: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; height: 100%; }
-        .sidebar-header { padding: 20px; border-bottom: 1px solid #eee; background: #f8f9fa; }
-        .channels-list { flex-grow: 1; overflow-y: auto; padding: 10px; }
-        .section-title { font-size: 0.75rem; color: #888; text-transform: uppercase; margin: 15px 0 5px 10px; font-weight: bold; }
-        .channel-item { padding: 10px 15px; cursor: pointer; border-radius: 8px; color: #444; margin-bottom: 2px; display: flex; align-items: center; }
-        .channel-item:hover { background: #f0f2f5; }
-        .channel-item.active { background: #e7f3ff; color: #1877f2; font-weight: bold; }
-        .status-dot { width: 8px; height: 8px; background: #ccc; border-radius: 50%; margin-right: 10px; }
-        .online { background: #31a24c; }
-        .chat-area { flex-grow: 1; display: flex; flex-direction: column; background: #fff; }
-        .chat-header { padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: white; }
-        .chat-title { font-weight: bold; font-size: 1.1rem; }
-        .messages-box { flex-grow: 1; padding: 20px; overflow-y: auto; background: #f0f2f5; display: flex; flex-direction: column; gap: 10px; }
-        .message { max-width: 70%; padding: 10px 15px; border-radius: 15px; font-size: 0.95rem; position: relative; word-wrap: break-word;}
-        .msg-mine { align-self: flex-end; background: #0084ff; color: white; border-bottom-right-radius: 2px; }
-        .msg-other { align-self: flex-start; background: white; color: #333; border-bottom-left-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .msg-sender { font-size: 0.7rem; color: #666; margin-bottom: 2px; display: block; }
-        .msg-mine .msg-sender { display: none; }
-        .input-area { padding: 20px; border-top: 1px solid #eee; display: flex; gap: 10px; background: white; }
-
-        .weather-widget {
-            padding: 15px; border-top: 1px solid #eee; background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
-            color: white; text-align: center; position: relative;
-        }
-        .weather-top { display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: transform 0.2s; }
-        .weather-top:hover { transform: scale(1.05); }
-        .weather-temp { font-size: 1.5rem; font-weight: bold; }
-        .suggestions-list {
-            position: absolute; bottom: 50px; left: 10px; right: 10px;
-            background: white; color: black; list-style: none; border-radius: 5px;
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.1); max-height: 150px; overflow-y: auto;
-            display: none; z-index: 100; text-align: left;
-        }
-        .suggestions-list li { padding: 8px; border-bottom: 1px solid #eee; font-size: 0.8rem; cursor: pointer; }
-        .suggestions-list li:hover { background: #f0f0f0; }
-
-
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 2000; display: none;
-            justify-content: center; align-items: center;
-            backdrop-filter: blur(5px);
-        }
-        .modal-content {
-            background: white; width: 90%; max-width: 500px; padding: 20px;
-            border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            text-align: center; position: relative;
-        }
-        .close-btn {
-            position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #555;
-        }
-
-        .forecast-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-            gap: 10px; margin-top: 20px; max-height: 300px; overflow-y: auto;
-        }
-        .forecast-card {
-            background: #f8f9fa; padding: 10px; border-radius: 10px; border: 1px solid #eee;
-        }
-        .f-time { font-size: 0.8rem; color: #888; margin-bottom: 5px; }
-        .f-temp { font-weight: bold; color: #333; }
-
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -95,12 +21,11 @@
 </div>
 
 <div id="app-container">
-
     <div class="sidebar">
-        <div class="sidebar-header">
-            <h2>Student Hub</h2>
-            <span id="current-user-name" class="user-status">● Онлайн</span>
-            <button onclick="logoutUser()" style="margin-top: 10px; font-size: 0.7rem; padding: 5px; background: #eee;">Вийти</button>
+        <div class="sidebar-header" onclick="openProfileModal()" title="Натисни, щоб відкрити профіль">
+            <img id="sidebar-avatar" src="https://ui-avatars.com/api/?name=User" class="user-avatar-small">
+            <h2 id="current-user-name">Loading...</h2>
+            <span class="user-status">● Налаштування профілю</span>
         </div>
 
         <div class="channels-list">
@@ -116,19 +41,16 @@
             <div class="weather-top" onclick="openForecastModal()">
                 <img id="w-icon" src="" width="40" style="display:none">
                 <div id="w-temp" class="weather-temp">--°</div>
-                <small style="font-size: 0.7rem; display:block; margin-top: 5px;">(Натисни)</small>
+                <small style="font-size: 0.7rem; display:block; margin-top: 5px;">(Натисни для прогнозу)</small>
             </div>
-
             <div id="w-desc" style="font-size: 0.8rem; margin: 5px 0;">Введіть місто 👇</div>
-
             <div style="position: relative;">
-                <input type="text" id="w-input" class="mini-input"
-                       placeholder="Пошук міста..."
-                       style="width: 90%; padding: 5px; font-size: 0.8rem; margin-top: 5px; border: none; border-radius: 4px;"
-                       autocomplete="off">
+                <input type="text" id="w-input" class="mini-input" placeholder="Пошук міста..." style="width: 90%; padding: 5px; font-size: 0.8rem; margin-top: 5px; border: none; border-radius: 4px;" autocomplete="off">
                 <ul id="weather-suggestions" class="suggestions-list"></ul>
             </div>
         </div>
+
+        <button onclick="logoutUser()" style="margin: 10px; font-size: 0.8rem; padding: 8px; background: #ffebee; color: #c62828; border:none; border-radius: 5px; cursor: pointer;">🚪 Вийти</button>
     </div>
 
     <div class="chat-area">
@@ -146,10 +68,24 @@
         <span class="close-btn" onclick="closeForecastModal()">&times;</span>
         <h2 id="modal-city-name">Прогноз погоди</h2>
         <p id="modal-current-desc" style="color: #666; margin-bottom: 20px;">...</p>
+        <div id="modal-forecast-grid" class="forecast-grid"></div>
+    </div>
+</div>
 
-        <h3 style="text-align: left; font-size: 1rem; margin-bottom: 10px;">Найближчі дні (3 год інтервал):</h3>
-        <div id="modal-forecast-grid" class="forecast-grid">
-        </div>
+<div id="profile-modal" class="modal-overlay">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeProfileModal()">&times;</span>
+        <h2>👤 Мій Профіль</h2>
+
+        <img id="profile-edit-preview" src="" class="profile-preview-img">
+
+        <p style="font-size: 0.8rem; color: #666; margin-bottom: 5px; text-align: left;">Завантажити фото:</p>
+        <input type="file" id="profile-avatar-file" class="profile-input" accept="image/*">
+
+        <p style="font-size: 0.8rem; color: #666; margin-bottom: 5px; text-align: left;">Про себе:</p>
+        <textarea id="profile-about-input" placeholder="Напиши щось цікаве про себе..."></textarea>
+
+        <button id="save-btn" class="btn-primary" onclick="saveProfile()" style="margin-top: 15px;">💾 Зберегти зміни</button>
     </div>
 </div>
 
