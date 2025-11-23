@@ -35,7 +35,6 @@ window.logoutUser = logoutUser;
 window.sendMessage = sendMessage;
 window.switchChat = switchChat;
 window.getMiniWeather = getMiniWeather;
-
 //Преревірка входу
 window.onload = function() {
     const saved = localStorage.getItem('currentUser');
