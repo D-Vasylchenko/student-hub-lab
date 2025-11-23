@@ -1,4 +1,3 @@
-// підключення Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, set, get, child, push, onChildAdded, off } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
@@ -15,33 +14,32 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-//змінні стану
 let currentUser = null;
-let currentChatID = 'general'; // За замовчуванням загальний чат
-let currentChatType = 'public';
-let activeListenerPath = null; // Щоб вимикати прослуховування старого чату
+let currentChatID = 'general';
+let activeListenerPath = null;
+let weatherTimeout = null; // Таймер для пошуку міст
 
-//елементи DOM
-const authDiv = document.getElementById('auth-container');
-const appDiv = document.getElementById('app-container');
-const msgBox = document.getElementById('messages-box');
-const chatTitle = document.getElementById('chat-title');
-const usersListDiv = document.getElementById('users-list');
+const weatherKey = '92601328e641e8e4a8092a6f765b74cd';
 
-//глобальні функції
 window.loginUser = loginUser;
 window.registerUser = registerUser;
 window.logoutUser = logoutUser;
 window.sendMessage = sendMessage;
 window.switchChat = switchChat;
-window.getMiniWeather = getMiniWeather;
-//Преревірка входу
+window.openForecastModal = openForecastModal;
+window.closeForecastModal = closeForecastModal;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const wInput = document.getElementById('w-input');
+    if(wInput) {
+        wInput.addEventListener('input', (e) => handleWeatherInput(e.target.value));
+    }
+});
+
 window.onload = function() {
     const saved = localStorage.getItem('currentUser');
     if (saved) initApp(saved);
 };
-
-//Авторизація
 function registerUser() {
     const user = document.getElementById('username').value.trim();
     const pass = document.getElementById('password').value.trim();
@@ -66,9 +64,7 @@ function loginUser() {
         if (snapshot.exists() && snapshot.val().password === pass) {
             localStorage.setItem('currentUser', user);
             initApp(user);
-        } else {
-            alert("Помилка входу");
-        }
+        } else { alert("Помилка входу"); }
     });
 }
 
@@ -77,71 +73,53 @@ function logoutUser() {
     location.reload();
 }
 
-// ініціалізація додатку
 function initApp(username) {
     currentUser = username;
-    authDiv.style.display = 'none';
-    appDiv.style.display = 'flex'; // Flex, щоб сайдбар і чат були поруч
+    document.getElementById('auth-container').style.display = 'none';
+    document.getElementById('app-container').style.display = 'flex';
     document.getElementById('current-user-name').innerText = `● ${username}`;
-
-    loadUsersList(); // Завантажити список людей для ДМ
-    switchChat('general', 'public'); // Зайти в дефолтний чат
+    loadUsersList();
+    switchChat('general', 'public');
 }
 
-// логіка чату (core)
-
-//завантаження списку користувачів для меню
 function loadUsersList() {
     const dbRef = ref(db, 'users');
     get(dbRef).then((snapshot) => {
-        usersListDiv.innerHTML = '';
+        const listDiv = document.getElementById('users-list');
+        listDiv.innerHTML = '';
         if (snapshot.exists()) {
             const users = snapshot.val();
             for (const userKey in users) {
-                if (userKey === currentUser) continue; // Не показувати себе
-
+                if (userKey === currentUser) continue;
                 const div = document.createElement('div');
                 div.className = 'channel-item';
                 div.innerHTML = `<div class="status-dot online"></div> ${userKey}`;
                 div.onclick = () => switchChat(userKey, 'private');
-                usersListDiv.appendChild(div);
+                listDiv.appendChild(div);
             }
         }
     });
 }
 
-//перемикання кімнат
 function switchChat(targetID, type) {
-    //відписуємося від старого чату (щоб повідомлення не дублювалися)
-    if (activeListenerPath) {
-        off(ref(db, activeListenerPath));
-    }
+    if (activeListenerPath) off(ref(db, activeListenerPath));
+    const msgBox = document.getElementById('messages-box');
+    msgBox.innerHTML = '';
 
-    currentChatType = type;
-    msgBox.innerHTML = ''; //очистити екран
-
-    // 2. Визначаємо ID кімнати
     if (type === 'public') {
         currentChatID = targetID;
-        chatTitle.innerText = `# ${targetID}`;
+        document.getElementById('chat-title').innerText = `# ${targetID}`;
         activeListenerPath = `public_chats/${targetID}`;
     } else {
-        //логіка для ПРИВАТНОГО чату: Сортуємо імена, щоб ID був однаковий для обох
         const ids = [currentUser, targetID].sort();
         currentChatID = `${ids[0]}_${ids[1]}`;
-        chatTitle.innerText = `💬 Чат з ${targetID}`;
+        document.getElementById('chat-title').innerText = `💬 Чат з ${targetID}`;
         activeListenerPath = `private_chats/${currentChatID}`;
     }
-
-    //підсвітка активного пункту в меню (візуально)
     document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
-    // (тут можна додати логіку додавання класу active до натиснутого елемента, але для простоти пропустимо)
 
-    //слухаємо повідомлення в новій кімнаті
-    const chatRef = ref(db, activeListenerPath);
-    onChildAdded(chatRef, (snapshot) => {
-        const msg = snapshot.val();
-        renderMessage(msg);
+    onChildAdded(ref(db, activeListenerPath), (snapshot) => {
+        renderMessage(snapshot.val());
     });
 }
 
@@ -149,51 +127,109 @@ function sendMessage() {
     const input = document.getElementById('msg-input');
     const text = input.value.trim();
     if (!text) return;
-
-    //відправляємо в поточний activeListenerPath
-    push(ref(db, activeListenerPath), {
-        user: currentUser,
-        text: text,
-        time: Date.now()
-    });
-
+    push(ref(db, activeListenerPath), { user: currentUser, text: text, time: Date.now() });
     input.value = '';
 }
 
 function renderMessage(msg) {
     const isMine = msg.user === currentUser;
-
     const div = document.createElement('div');
     div.className = `message ${isMine ? 'msg-mine' : 'msg-other'}`;
-
-    // Час
     const time = new Date(msg.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-    div.innerHTML = `
-        <span class="msg-sender">${msg.user}</span>
-        ${msg.text}
-        <div style="font-size: 0.6rem; text-align: right; opacity: 0.7; margin-top: 5px;">${time}</div>
-    `;
-
-    msgBox.appendChild(div);
-    msgBox.scrollTop = msgBox.scrollHeight; // Автоскрол вниз
+    div.innerHTML = `<span class="msg-sender">${msg.user}</span>${msg.text}<div style="font-size: 0.6rem; text-align: right; opacity: 0.7; margin-top: 5px;">${time}</div>`;
+    const box = document.getElementById('messages-box');
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
 }
 
-//погода
-const apiKey = '92601328e641e8e4a8092a6f765b74cd';
+function handleWeatherInput(query) {
+    const list = document.getElementById('weather-suggestions');
+    clearTimeout(weatherTimeout);
+    list.innerHTML = '';
+    list.style.display = 'none';
 
-async function getMiniWeather(city) {
-    if(city.length < 3) return;
+    if(query.length < 3) return;
+
+    weatherTimeout = setTimeout(async () => {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${query}&accept-language=uk&limit=5`;
+        try {
+            const res = await fetch(url);
+            const cities = await res.json();
+
+            if(cities.length > 0) {
+                cities.forEach(city => {
+                    const li = document.createElement('li');
+                    li.innerText = city.display_name.split(',').slice(0, 2).join(','); // Скорочуємо назву
+                    li.onclick = () => {
+                        document.getElementById('w-input').value = city.display_name.split(',')[0];
+                        list.style.display = 'none';
+                        loadFullWeather(city.lat, city.lon, city.display_name.split(',')[0]);
+                    };
+                    list.appendChild(li);
+                });
+                list.style.display = 'block';
+            }
+        } catch(e) { console.error(e); }
+    }, 500);
+}
+
+async function loadFullWeather(lat, lon, cityName) {
+    const currentUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${weatherKey}&units=metric&lang=ua`;
+    const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${weatherKey}&units=metric&lang=ua`;
+
     try {
-        const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=ua`;
-        const res = await fetch(url);
-        const data = await res.json();
+        const [currRes, foreRes] = await Promise.all([fetch(currentUrl), fetch(forecastUrl)]);
+        const currData = await currRes.json();
+        const foreData = await foreRes.json();
 
-        if (data.cod === 200) {
-            document.getElementById('w-temp').innerText = Math.round(data.main.temp) + "°";
-            document.getElementById('w-desc').innerText = data.weather[0].description;
-            document.getElementById('w-icon').src = `https://openweathermap.org/img/wn/${data.weather[0].icon}.png`;
-            document.getElementById('w-icon').style.display = 'block';
-        }
-    } catch (e) { console.error(e); }
+        document.getElementById('w-temp').innerText = Math.round(currData.main.temp) + "°";
+        document.getElementById('w-desc').innerText = currData.weather[0].description;
+        document.getElementById('w-icon').src = `https://openweathermap.org/img/wn/${currData.weather[0].icon}.png`;
+        document.getElementById('w-icon').style.display = 'block';
+
+        window.currentForecastData = {
+            city: cityName,
+            desc: currData.weather[0].description,
+            list: foreData.list
+        };
+
+    } catch(e) { console.error("Weather Error", e); }
+}
+
+// 3. Відкриття Модалки
+function openForecastModal() {
+    if(!window.currentForecastData) {
+        alert("Спочатку знайдіть місто!");
+        return;
+    }
+
+    const data = window.currentForecastData;
+    document.getElementById('modal-city-name').innerText = data.city;
+    document.getElementById('modal-current-desc').innerText = data.desc;
+
+    const grid = document.getElementById('modal-forecast-grid');
+    grid.innerHTML = '';
+
+
+    data.list.slice(0, 15).forEach(item => {
+        const date = new Date(item.dt * 1000);
+        const dayName = date.toLocaleDateString('uk-UA', { weekday: 'short' });
+        const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        const div = document.createElement('div');
+        div.className = 'forecast-card';
+        div.innerHTML = `
+            <div class="f-time" style="font-weight:bold">${dayName}</div>
+            <div class="f-time">${time}</div>
+            <img src="https://openweathermap.org/img/wn/${item.weather[0].icon}.png" width="40">
+            <div class="f-temp">${Math.round(item.main.temp)}°</div>
+        `;
+        grid.appendChild(div);
+    });
+
+    document.getElementById('forecast-modal').style.display = 'flex';
+}
+
+function closeForecastModal() {
+    document.getElementById('forecast-modal').style.display = 'none';
 }
