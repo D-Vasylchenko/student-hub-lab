@@ -2,61 +2,143 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>WeatherWear Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; text-align: center; padding-top: 50px; background-color: #f4f7f6; }
+        /* стилі менеджера */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: #f0f2f5; height: 100vh; overflow: hidden; display: flex; }
 
-        .search-container { position: relative; width: 300px; margin: 0 auto; }
+        /*екран авторизації */
+        #auth-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex; align-items: center; justify-content: center; z-index: 1000;
+        }
+        .auth-box {
+            background: white; padding: 2rem; border-radius: 20px; width: 350px; text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        input { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        button { width: 100%; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 5px; }
+        .btn-primary { background: #764ba2; color: white; }
+        .btn-secondary { background: transparent; color: #764ba2; border: 1px solid #764ba2; }
 
-        input { width: 100%; padding: 10px; box-sizing: border-box; font-size: 16px; }
+        /*інтерфейс головний */
+        #app-container { display: none; width: 100%; height: 100%; display: flex; }
 
-        .suggestions-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            position: absolute;
-            width: 100%;
+        /*меню */
+        .sidebar {
+            width: 300px; background: white; border-right: 1px solid #ddd;
+            display: flex; flex-direction: column; height: 100%;
+        }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid #eee; background: #f8f9fa; }
+        .sidebar-header h2 { font-size: 1.2rem; color: #333; }
+        .user-status { font-size: 0.8rem; color: #04b204; margin-top: 5px; display: block;}
+
+        .channels-list { flex-grow: 1; overflow-y: auto; padding: 10px; }
+        .section-title { font-size: 0.75rem; color: #888; text-transform: uppercase; margin: 15px 0 5px 10px; font-weight: bold; }
+
+        .channel-item {
+            padding: 10px 15px; cursor: pointer; border-radius: 8px; color: #444; margin-bottom: 2px;
+            display: flex; align-items: center;
+        }
+        .channel-item:hover { background: #f0f2f5; }
+        .channel-item.active { background: #e7f3ff; color: #1877f2; font-weight: bold; }
+
+
+        /* віджет погоди*/
+        .weather-widget {
+            padding: 15px; border-top: 1px solid #eee; background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+            color: white; text-align: center;
+        }
+        .weather-top { display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .weather-temp { font-size: 1.5rem; font-weight: bold; }
+        .weather-desc { font-size: 0.8rem; opacity: 0.9; text-transform: capitalize;}
+        .mini-input { width: 70%; padding: 5px; font-size: 0.8rem; margin-top: 5px; border: none; border-radius: 4px; }
+
+        /* чат(панель) */
+        .chat-area { flex-grow: 1; display: flex; flex-direction: column; background: #fff; }
+
+        .chat-header {
+            padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;
             background: white;
-            border: 1px solid #ddd;
-            border-top: none;
-            z-index: 10;
-            text-align: left;
-            max-height: 200px;
-            overflow-y: auto;
-            display: none;
+        }
+        .chat-title { font-weight: bold; font-size: 1.1rem; }
+
+        .messages-box {
+            flex-grow: 1; padding: 20px; overflow-y: auto; background: #f0f2f5;
+            display: flex; flex-direction: column; gap: 10px;
         }
 
-        .suggestions-list li {
-            padding: 10px;
-            cursor: pointer;
-            border-bottom: 1px solid #eee;
-        }
+        .msg-mine .msg-sender { display: none; }
 
-        .suggestions-list li:hover { background-color: #f0f0f0; }
-        .suggestions-list li span { font-size: 0.85em; color: #666; display: block;}
+        .input-area { padding: 20px; border-top: 1px solid #eee; display: flex; gap: 10px; background: white; }
+        .input-area input { margin-bottom: 0; padding: 12px; border-radius: 20px; background: #f0f2f5; border: none; }
 
-        #weather-result { margin-top: 20px; display: none; background: white; padding: 20px; border-radius: 10px; width: 300px; margin-left: auto; margin-right: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .alert { color: #d9534f; font-weight: bold; display: block; margin-top: 5px;}
+        /*скролбар */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
     </style>
 </head>
 <body>
-<h1>🌤 Погодний Асистент</h1>
 
-<div class="search-container">
-    <input type="text" id="city-input" placeholder="Почніть вводити місто..." autocomplete="off">
-    <ul id="suggestions" class="suggestions-list"></ul>
+<div id="auth-container">
+    <div class="auth-box">
+        <h2>🔐 Вхід у Хаб</h2>
+        <input type="text" id="username" placeholder="Ваш нікнейм">
+        <input type="password" id="password" placeholder="Пароль">
+        <button class="btn-primary" onclick="loginUser()">Увійти</button>
+        <button class="btn-secondary" onclick="registerUser()">Реєстрація</button>
+        <p id="auth-error" style="color: #e10202; font-size: 0.8rem; margin-top: 10px;"></p>
+    </div>
 </div>
 
-<div id="weather-result">
-    <h2 id="city-name"></h2>
-    <p>Зараз: <strong id="temp"></strong>°C, <span id="description"></span></p>
+<div id="app-container" style="display: none;"> <div class="sidebar">
+    <div class="sidebar-header">
+        <h2>Student Hub</h2>
+        <span id="current-user-name" class="user-status">● Онлайн</span>
+        <button onclick="logoutUser()" style="margin-top: 10px; font-size: 0.7rem; padding: 5px; width: auto; background: #eee;">Вийти</button>
+    </div>
 
-    <div id="forecast" style="text-align: left; margin-top: 15px; font-size: 0.9em; color: #555;"></div>
+    <div class="channels-list">
+        <div class="section-title">Форуми</div>
+        <div class="channel-item active" onclick="switchChat('general', 'public')"># 📢 general</div>
+        <div class="channel-item" onclick="switchChat('homework', 'public')"># 📚 домашкa</div>
+        <div class="channel-item" onclick="switchChat('offtopic', 'public')"># ☕ флудилка</div>
 
-    <hr>
-    <p id="clothing-advice" style="font-size: 1.1em; color: #0056b3;"></p>
+        <div class="section-title">Особисті повідомлення</div>
+        <div id="users-list">
+        </div>
+    </div>
+
+    <div class="weather-widget">
+        <div class="weather-top">
+            <img id="w-icon" src="" width="40" style="display:none">
+            <div id="w-temp" class="weather-temp">--°</div>
+        </div>
+        <div id="w-desc" class="weather-desc">Введіть місто 👇</div>
+        <input type="text" class="mini-input" placeholder="Місто..." onchange="getMiniWeather(this.value)">
+    </div>
 </div>
 
-<script src="script.js"></script>
+    <div class="chat-area">
+        <div class="chat-header">
+            <div id="chat-title" class="chat-title"># general</div>
+        </div>
+
+        <div id="messages-box" class="messages-box">
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="msg-input" placeholder="Напишіть повідомлення..." autocomplete="off">
+            <button class="btn-primary" style="width: auto; margin-bottom: 0;" onclick="sendMessage()">Send ➤</button>
+        </div>
+    </div>
+
+</div>
+
+<script type="module" src="script.js"></script>
 </body>
 </html>
