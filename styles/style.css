@@ -1,14 +1,55 @@
+/* --- ЗМІННІ КОЛЬОРІВ (Light/Dark) --- */
+:root {
+    /* Світла тема (За замовчуванням) */
+    --bg-body: #f0f2f5; /* Фон сторінки */
+    --bg-surface: #ffffff; /* Фон блоків (сайдбар, чат, модалки) */
+    --bg-input: #f0f2f5; /* Фон полів вводу */
+    --text-primary: #333333; /* Основний текст */
+    --text-secondary: #666666; /* Сірий текст */
+    --border-color: #dddddd; /* Рамки */
+    --hover-color: #f0f2f5; /* Фон при наведенні */
+    --accent-color: #764ba2; /* Основний фіолетовий */
+    --msg-mine-bg: #0084ff; /* Мої повідомлення */
+    --msg-mine-text: #ffffff;
+    --msg-other-bg: #ffffff; /* Чужі повідомлення */
+    --msg-other-text: #333333;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] {
+    /* Темна тема */
+    --bg-body: #18191a;
+    --bg-surface: #242526;
+    --bg-input: #3a3b3c;
+    --text-primary: #e4e6eb;
+    --text-secondary: #b0b3b8;
+    --border-color: #3e4042;
+    --hover-color: #3a3b3c;
+    --accent-color: #a270d6; /* Трохи світліший фіолетовий для темної */
+    --msg-mine-bg: #764ba2;
+    --msg-mine-text: #ffffff;
+    --msg-other-bg: #3e4042;
+    --msg-other-text: #e4e6eb;
+    --shadow-color: rgba(0, 0, 0, 0.5);
+}
+
+/* --- ОСНОВНІ СТИЛІ --- */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
+
 body {
     font-family: 'Inter', sans-serif;
-    background: #f0f2f5;
+    background: var(--bg-body);
+    color: var(--text-primary);
     height: 100vh;
     overflow: hidden;
     display: flex;
+    transition:
+        background 0.3s,
+        color 0.3s;
 }
 
 ::-webkit-scrollbar {
@@ -19,6 +60,7 @@ body {
     border-radius: 3px;
 }
 
+/* Екран входу */
 #auth-container {
     position: fixed;
     top: 0;
@@ -32,14 +74,14 @@ body {
     z-index: 1000;
 }
 .auth-box {
-    background: white;
+    background: white; /* Тут завжди білий, бо фон кольоровий */
     padding: 2rem;
     border-radius: 20px;
     width: 350px;
     text-align: center;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
-input {
+.auth-box input {
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
@@ -61,10 +103,12 @@ button {
 }
 .btn-secondary {
     background: transparent;
-    color: #764ba2;
-    border: 1px solid #764ba2;
+    color: var(--text-primary);
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
 }
 
+/* Основний контейнер */
 #app-container {
     display: none;
     width: 100%;
@@ -72,25 +116,27 @@ button {
     display: flex;
 }
 
+/* САЙДБАР */
 .sidebar {
     width: 300px;
-    background: white;
-    border-right: 1px solid #ddd;
+    background: var(--bg-surface);
+    border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
     height: 100%;
+    transition: background 0.3s;
 }
 
 .sidebar-header {
     padding: 20px;
-    border-bottom: 1px solid #eee;
-    background: #f8f9fa;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-surface); /* Важливо */
     text-align: center;
     cursor: pointer;
     transition: 0.3s;
 }
 .sidebar-header:hover {
-    background: #e9ecef;
+    background: var(--hover-color);
 }
 
 .user-avatar-small {
@@ -98,12 +144,12 @@ button {
     height: 60px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #764ba2;
+    border: 2px solid var(--accent-color);
     margin-bottom: 10px;
 }
 .user-status {
     font-size: 0.8rem;
-    color: green;
+    color: #31a24c;
     margin-top: 5px;
     display: block;
 }
@@ -115,7 +161,7 @@ button {
 }
 .section-title {
     font-size: 0.75rem;
-    color: #888;
+    color: var(--text-secondary);
     text-transform: uppercase;
     margin: 15px 0 5px 10px;
     font-weight: bold;
@@ -125,17 +171,17 @@ button {
     padding: 10px 15px;
     cursor: pointer;
     border-radius: 8px;
-    color: #444;
+    color: var(--text-primary);
     margin-bottom: 2px;
     display: flex;
     align-items: center;
 }
 .channel-item:hover {
-    background: #f0f2f5;
+    background: var(--hover-color);
 }
 .channel-item.active {
-    background: #e7f3ff;
-    color: #1877f2;
+    background: rgba(118, 75, 162, 0.1);
+    color: var(--accent-color);
     font-weight: bold;
 }
 .status-dot {
@@ -149,9 +195,10 @@ button {
     background: #31a24c;
 }
 
+/* Віджет погоди */
 .weather-widget {
     padding: 15px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--border-color);
     background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
     color: white;
     text-align: center;
@@ -179,18 +226,18 @@ button {
     margin-top: 5px;
     border: none;
     border-radius: 4px;
+    background: rgba(255, 255, 255, 0.9);
 }
-
 .suggestions-list {
     position: absolute;
     bottom: 50px;
     left: 10px;
     right: 10px;
-    background: white;
-    color: black;
+    background: var(--bg-surface);
+    color: var(--text-primary);
     list-style: none;
     border-radius: 5px;
-    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 -5px 15px var(--shadow-color);
     max-height: 150px;
     overflow-y: auto;
     display: none;
@@ -199,27 +246,28 @@ button {
 }
 .suggestions-list li {
     padding: 8px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color);
     font-size: 0.8rem;
     cursor: pointer;
 }
 .suggestions-list li:hover {
-    background: #f0f0f0;
+    background: var(--hover-color);
 }
 
+/* ЧАТ */
 .chat-area {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    background: #fff;
+    background: var(--bg-surface); /* Важливо для темної теми */
 }
 .chat-header {
     padding: 15px 20px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: white;
+    background: var(--bg-surface);
 }
 .chat-title {
     font-weight: bold;
@@ -230,7 +278,7 @@ button {
     flex-grow: 1;
     padding: 20px;
     overflow-y: auto;
-    background: #f0f2f5;
+    background: var(--bg-body); /* Фон чату */
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -258,7 +306,7 @@ button {
     border-radius: 50%;
     object-fit: cover;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px var(--shadow-color);
     transition: transform 0.2s;
 }
 .chat-avatar:hover {
@@ -271,52 +319,91 @@ button {
     font-size: 0.95rem;
     position: relative;
     word-wrap: break-word;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 2px var(--shadow-color);
 }
-
 .msg-mine .message {
-    background: #0084ff;
-    color: white;
+    background: var(--msg-mine-bg);
+    color: var(--msg-mine-text);
     border-bottom-right-radius: 4px;
 }
 .msg-other .message {
-    background: white;
-    color: #333;
+    background: var(--msg-other-bg);
+    color: var(--msg-other-text);
     border-bottom-left-radius: 4px;
 }
-
 .msg-sender {
     font-size: 0.75rem;
     font-weight: bold;
     margin-bottom: 4px;
     display: block;
     cursor: pointer;
-    color: #555;
+    color: var(--text-secondary);
     transition: color 0.2s;
 }
 .msg-sender:hover {
-    color: #0084ff;
+    color: var(--accent-color);
     text-decoration: underline;
 }
 .msg-mine .msg-sender {
     display: none;
 }
 
+/* ПОЛЕ ВВОДУ (Капсула) */
 .input-area {
     padding: 20px;
-    border-top: 1px solid #eee;
-    display: flex;
-    gap: 10px;
-    background: white;
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border-color);
 }
-.input-area input {
-    margin-bottom: 0;
-    padding: 12px;
-    border-radius: 20px;
-    background: #f0f2f5;
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    background: var(--bg-input);
+    border-radius: 25px;
+    padding: 5px 15px;
+    border: 1px solid transparent;
+    transition: 0.2s;
+}
+.input-wrapper:focus-within {
+    background: var(--bg-surface);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 5px rgba(118, 75, 162, 0.2);
+}
+.input-wrapper textarea {
+    flex-grow: 1;
     border: none;
+    background: transparent;
+    resize: none;
+    height: 40px;
+    padding: 10px 5px;
+    outline: none;
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    color: var(--text-primary); /* Текст вводу */
+}
+.send-btn-icon {
+    background: transparent;
+    border: none;
+    color: var(--accent-color);
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 5px;
+    transition: 0.2s;
+}
+.send-btn-icon:hover {
+    background: rgba(118, 75, 162, 0.1);
+    transform: scale(1.1);
+    color: #5b3a82;
 }
 
+/* МОДАЛКИ (Профіль, Налаштування, Погода) */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -331,12 +418,13 @@ button {
     backdrop-filter: blur(5px);
 }
 .modal-content {
-    background: white;
+    background: var(--bg-surface);
+    color: var(--text-primary);
     width: 90%;
     max-width: 400px;
     padding: 20px;
     border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     text-align: center;
     position: relative;
 }
@@ -346,14 +434,14 @@ button {
     right: 20px;
     font-size: 1.5rem;
     cursor: pointer;
-    color: #555;
+    color: var(--text-secondary);
 }
 
 .profile-preview-img {
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    border: 3px solid #764ba2;
+    border: 3px solid var(--accent-color);
     margin-bottom: 15px;
     object-fit: cover;
 }
@@ -363,11 +451,111 @@ button {
 textarea {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     height: 80px;
     resize: none;
     font-family: inherit;
+    background: var(--bg-input);
+    color: var(--text-primary);
+}
+
+/* Налаштування */
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+.switch input {
+    display: none;
+}
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 34px;
+}
+.slider:before {
+    position: absolute;
+    content: '';
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+input:checked + .slider {
+    background-color: var(--accent-color);
+}
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* Підсвітка нових повідомлень */
+.has-new-message {
+    background: #e3f2fd !important;
+    border-left: 5px solid #0084ff !important;
+    font-weight: 800 !important;
+    color: #000 !important;
+    position: relative;
+}
+.has-new-message::after {
+    content: '1';
+    position: absolute;
+    right: 15px;
+    background: red;
+    color: white;
+    font-size: 10px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+[data-theme='dark'] .has-new-message {
+    background: #2a3e52 !important; /* Темніша підсвітка для темної теми */
+    color: #fff !important;
+}
+
+/* Кнопка видалення */
+.delete-btn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 1px solid white;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.message:hover .delete-btn {
+    opacity: 1;
 }
 
 .forecast-grid {
@@ -379,17 +567,70 @@ textarea {
     overflow-y: auto;
 }
 .forecast-card {
-    background: #f8f9fa;
+    background: var(--bg-input);
     padding: 10px;
     border-radius: 10px;
-    border: 1px solid #eee;
+    border: 1px solid var(--border-color);
 }
 .f-time {
     font-size: 0.8rem;
-    color: #888;
+    color: var(--text-secondary);
     margin-bottom: 5px;
 }
 .f-temp {
     font-weight: bold;
-    color: #333;
+    color: var(--text-primary);
+}
+.add-chat-btn {
+    background: transparent;
+    border: 1px solid var(--text-secondary);
+    color: var(--text-secondary);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: 18px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s;
+    padding: 0;
+    margin: 0;
+}
+.add-chat-btn:hover {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+/* Список користувачів у модалці */
+.users-list-scroll {
+    max-height: 300px;
+    overflow-y: auto;
+    text-align: left;
+    margin-top: 10px;
+}
+.user-item-row {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+    border-bottom: 1px solid var(--border-color);
+}
+.user-item-row:hover {
+    background: var(--hover-color);
+}
+.user-item-row img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+}
+.user-item-name {
+    font-weight: bold;
+    color: var(--text-primary);
 }

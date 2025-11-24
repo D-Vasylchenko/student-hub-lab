@@ -7,15 +7,13 @@
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
 
         <link rel="stylesheet" href="styles/style.css" />
-
-        <script type="module" src="src/script.js"></script>
     </head>
     <body>
         <div id="auth-container">
             <div class="auth-box">
-                <h2>🔐 Вхід у особистий кабінет</h2>
-                <input type="text" id="username" placeholder="Ваш нікнейм" />
-                <input type="password" id="password" placeholder="Пароль" />
+                <h2 style="margin-bottom: 20px; color: #333">Student Hub 🎓</h2>
+                <input type="text" id="username" placeholder="Введіть нікнейм" />
+                <input type="password" id="password" placeholder="Введіть пароль" />
                 <button class="btn-primary" onclick="loginUser()">Увійти</button>
                 <button class="btn-secondary" onclick="registerUser()">Реєстрація</button>
             </div>
@@ -23,73 +21,97 @@
 
         <div id="app-container">
             <div class="sidebar">
-                <div class="sidebar-header" onclick="openProfileModal()" title="Натисни, щоб відкрити профіль">
-                    <img id="sidebar-avatar" src="https://ui-avatars.com/api/?name=User" class="user-avatar-small" />
-                    <h2 id="current-user-name">Loading...</h2>
-                    <span class="user-status">● Налаштування профілю</span>
+                <div class="sidebar-header" onclick="openProfileModal()">
+                    <img src="" id="sidebar-avatar" class="user-avatar-small" />
+                    <div>
+                        <div id="current-user-name" style="font-weight: bold">User</div>
+                        <span class="user-status">● Online</span>
+                    </div>
                 </div>
 
                 <div class="channels-list">
                     <div class="section-title">Форуми</div>
-                    <div class="channel-item active" onclick="switchChat('general', 'public')"># 📢 general</div>
-                    <div class="channel-item" onclick="switchChat('homework', 'public')"># 📚 домашкa</div>
-                    <div class="channel-item" onclick="switchChat('offtopic', 'public')"># ☕ флудилка</div>
-                    <div class="section-title">Особисті повідомлення</div>
-                    <div id="users-list"></div>
+                    <div id="public-channels-container">
+                        <div
+                            id="chat-link-general"
+                            class="channel-item active"
+                            onclick="switchChat('general', 'public')"
+                        >
+                            # 📢 general
+                        </div>
+                        <div id="chat-link-homework" class="channel-item" onclick="switchChat('homework', 'public')">
+                            # 📚 домашкa
+                        </div>
+                        <div id="chat-link-offtopic" class="channel-item" onclick="switchChat('offtopic', 'public')">
+                            # ☕ флудилка
+                        </div>
+                    </div>
+
+                    <div
+                        class="section-title"
+                        style="display: flex; justify-content: space-between; align-items: center; padding-right: 10px"
+                    >
+                        <span>Особисті повідомлення</span>
+                        <button class="add-chat-btn" onclick="openUsersModal()" title="Почати новий чат">+</button>
+                    </div>
+
+                    <div id="private-channels-container"></div>
+                </div>
+                <div id="users-modal" class="modal-overlay">
+                    <div class="modal-content">
+                        <span class="close-btn" onclick="closeUsersModal()">&times;</span>
+                        <h2 style="margin-bottom: 15px">🔍 Знайти співрозмовника</h2>
+                        <input
+                            type="text"
+                            id="user-search"
+                            class="profile-input"
+                            placeholder="Пошук користувача..."
+                            oninput="filterUsersList()"
+                        />
+                        <div id="all-users-list" class="users-list-scroll"></div>
+                    </div>
                 </div>
 
                 <div class="weather-widget">
                     <div class="weather-top" onclick="openForecastModal()">
                         <img id="w-icon" src="" width="40" style="display: none" />
                         <div id="w-temp" class="weather-temp">--°</div>
-                        <small style="font-size: 0.7rem; display: block; margin-top: 5px">(Натисни для прогнозу)</small>
                     </div>
-                    <div id="w-desc" style="font-size: 0.8rem; margin: 5px 0">Введіть місто 👇</div>
-                    <div style="position: relative">
-                        <input
-                            type="text"
-                            id="w-input"
-                            class="mini-input"
-                            placeholder="Пошук міста..."
-                            style="
-                                width: 90%;
-                                padding: 5px;
-                                font-size: 0.8rem;
-                                margin-top: 5px;
-                                border: none;
-                                border-radius: 4px;
-                            "
-                            autocomplete="off"
-                        />
-                        <ul id="weather-suggestions" class="suggestions-list"></ul>
+                    <input type="text" id="w-input" class="mini-input" placeholder="🔍 Місто..." />
+                    <ul id="weather-suggestions" class="suggestions-list"></ul>
+
+                    <div style="display: flex; gap: 5px; margin-top: 10px">
+                        <button
+                            class="btn-secondary"
+                            style="flex: 1; border-color: white; color: white"
+                            onclick="openSettingsModal()"
+                        >
+                            ⚙️ Налаштування
+                        </button>
+                        <button
+                            class="btn-secondary"
+                            style="width: 40px; border-color: white; color: white"
+                            onclick="logoutUser()"
+                        >
+                            🚪
+                        </button>
                     </div>
                 </div>
-
-                <button
-                    onclick="logoutUser()"
-                    style="
-                        margin: 10px;
-                        font-size: 0.8rem;
-                        padding: 8px;
-                        background: #ffebee;
-                        color: #c62828;
-                        border: none;
-                        border-radius: 5px;
-                        cursor: pointer;
-                    "
-                >
-                    🚪 Вийти
-                </button>
             </div>
 
             <div class="chat-area">
-                <div class="chat-header"><div id="chat-title" class="chat-title"># general</div></div>
+                <div class="chat-header">
+                    <div id="chat-title" class="chat-title"># general</div>
+                    <div style="font-size: 0.8rem; color: #888">Student Hub v2.1</div>
+                </div>
+
                 <div id="messages-box" class="messages-box"></div>
+
                 <div class="input-area">
-                    <input type="text" id="msg-input" placeholder="Напишіть повідомлення..." autocomplete="off" />
-                    <button class="btn-primary" style="width: auto; margin-bottom: 0" onclick="sendMessage()">
-                        Send ➤
-                    </button>
+                    <div class="input-wrapper">
+                        <textarea id="msg-input" placeholder="Напишіть повідомлення..." rows="1"></textarea>
+                        <button class="send-btn-icon" onclick="sendMessage()">➤</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -106,12 +128,19 @@
         <div id="profile-modal" class="modal-overlay">
             <div class="modal-content">
                 <span class="close-btn" onclick="closeProfileModal()">&times;</span>
-                <h2>👤 Мій Профіль</h2>
+                <h2>👤 Профіль</h2>
 
                 <img id="profile-edit-preview" src="" class="profile-preview-img" />
 
-                <p style="font-size: 0.8rem; color: #666; margin-bottom: 5px; text-align: left">Завантажити фото:</p>
-                <input type="file" id="profile-avatar-file" class="profile-input" accept="image/*" />
+                <p id="upload-text" style="font-size: 0.8rem; color: #666; margin-bottom: 5px; text-align: left">
+                    Завантажити фото:
+                </p>
+                <input
+                    type="file"
+                    id="profile-avatar-file"
+                    class="profile-input"
+                    accept="image/png, image/jpeg, image/jpg, image/webp"
+                />
 
                 <p style="font-size: 0.8rem; color: #666; margin-bottom: 5px; text-align: left">Про себе:</p>
                 <textarea id="profile-about-input" placeholder="Напиши щось цікаве про себе..."></textarea>
@@ -119,9 +148,56 @@
                 <button id="save-btn" class="btn-primary" onclick="saveProfile()" style="margin-top: 15px">
                     💾 Зберегти зміни
                 </button>
+                <button
+                    id="start-chat-btn"
+                    class="btn-primary"
+                    onclick="startChatFromModal()"
+                    style="margin-top: 15px; background: #28a745; display: none"
+                >
+                    💬 Написати повідомлення
+                </button>
+
+                <button
+                    id="admin-delete-btn"
+                    class="btn-primary"
+                    style="margin-top: 10px; background: #dc3545; display: none"
+                >
+                    🗑️ Видалити користувача
+                </button>
             </div>
         </div>
 
-        <script type="module" src="src/script.js"></script>
+        <div id="settings-modal" class="modal-overlay">
+            <div class="modal-content" style="text-align: left">
+                <span class="close-btn" onclick="closeSettingsModal()">&times;</span>
+                <h2 style="text-align: center; margin-bottom: 20px">⚙️ Налаштування</h2>
+
+                <div class="setting-item">
+                    <span>🌙 Темна тема</span>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-toggle" onchange="toggleTheme()" />
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <span>🔔 Звук повідомлень</span>
+                    <label class="switch">
+                        <input type="checkbox" id="sound-toggle" onchange="toggleSound()" />
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+
+                <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee" />
+
+                <button onclick="deleteMyAccount()" style="background: #dc3545; color: white; margin-top: 10px">
+                    🗑️ Видалити мій акаунт
+                </button>
+
+                <p style="text-align: center; color: #888; font-size: 0.8rem; margin-top: 10px">Student Hub v2.2</p>
+            </div>
+        </div>
+
+        <script type="module" src="src/main.js"></script>
     </body>
 </html>
